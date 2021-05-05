@@ -1,11 +1,12 @@
+/* eslint-disable linebreak-style */
 import nodemailer from 'nodemailer';
-import { sendPasswordResetEmail, sendAddEmployeeEmail, ratingEmailTemplate, InquiryEmailTemplate } from './emails';
+import { sendPasswordResetTemplate, sendAddEmployeeEmail, ratingEmailTemplate, inquiryEmailTemplate } from './emails';
 import Constants from '../config/constants';
 
 export const sendResetPassEmail = (user, link) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: Constants.messages.service,
     auth: {
       user: Constants.messages.email, // generated ethereal user
       pass: Constants.messages.password, // generated ethereal password
@@ -16,8 +17,9 @@ export const sendResetPassEmail = (user, link) => {
   const mailOptions = {
     from: Constants.messages.email, // sender address
     to: [user.email], // list of receivers
-    subject: 'Link To Update Password', // Subject line
-    html: sendPasswordResetEmail(user, link), // html body
+    subject: 'Link To Reset Password', // Subject line
+    // text: 'Hello world?', // plain text body
+    html: sendPasswordResetTemplate(user, link), // html body
   };
 
   // send mail with defined transport object
@@ -34,7 +36,7 @@ export const sendResetPassEmail = (user, link) => {
 export const sendRatingEmail = (user, link) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: Constants.messages.service,
     auth: {
       user: Constants.messages.email, // generated ethereal user
       pass: Constants.messages.password, // generated ethereal password
@@ -63,7 +65,7 @@ export const sendRatingEmail = (user, link) => {
 export const sendEmployeeEmail = (user, link) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: Constants.messages.service,
     auth: {
       user: Constants.messages.email, // generated ethereal user
       pass: Constants.messages.password, // generated ethereal password
@@ -92,7 +94,7 @@ export const sendEmployeeEmail = (user, link) => {
 export const sendInquiryEmail = (user) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: Constants.messages.service,
     auth: {
       user: Constants.messages.email, // generated ethereal user
       pass: Constants.messages.password, // generated ethereal password
@@ -104,7 +106,7 @@ export const sendInquiryEmail = (user) => {
     from: Constants.messages.email, // sender address
     to: [user.toEmail, user.fromEmail], // list of receivers
     subject: 'New Claim: From Govver.com - User wants to connect You', // Subject line
-    html: InquiryEmailTemplate(user), // html body
+    html: inquiryEmailTemplate(user), // html body
   };
 
   // send mail with defined transport object

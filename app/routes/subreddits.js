@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { Router } from 'express';
 const { auth } = require('../utils/middleware');
 import Subreddit from '../controllers/subreddit.controller';

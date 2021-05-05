@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import BaseController from './base.controller';
 import Subreddit from '../models/subreddit';
 import User from '../models/user';

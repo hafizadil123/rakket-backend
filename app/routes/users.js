@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable max-len */
 import { Router } from 'express';
 import UsersController from '../controllers/user.controller';
@@ -15,6 +16,9 @@ users.get('/test', (req, res) => {
 });
 users.post('/register', AuthController.register);
 users.post('/login', AuthController.login);
+users.post('/send-forget-password-email', AuthController.sendForgetPassEmail);
+users.post('/forget-password/:userId/:token', AuthController.forgetPassword);
+users.post('/reset-password', auth, AuthController.resetPassword);
 // users.get('/get-users',auth, UsersController.getAllUsers);
 // users.get('/get-user', auth, UsersController.getUserDetail);
 users.post('/checkout', auth, UsersController.checkout);

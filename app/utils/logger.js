@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const { createLogger, transports, format } = require('winston');
 
 const logger = createLogger({

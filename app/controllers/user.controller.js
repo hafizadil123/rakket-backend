@@ -1,5 +1,8 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-tabs */
 /* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-unused-vars */
+
 import BaseController from './base.controller';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
@@ -30,74 +33,74 @@ class UsersController extends BaseController {
 	];
 
  	getUser = async (req, res) => {
-		const { username } = req.params;
-		const page = Number(req.query.page);
-		const limit = Number(req.query.limit);
-	  
-		const user = await User.findOne({
+ 	  const { username } = req.params;
+ 	  const page = Number(req.query.page);
+ 	  const limit = Number(req.query.limit);
+
+ 	  const user = await User.findOne({
 		  username: { $regex: new RegExp('^' + username + '$', 'i') },
-		});
-	  
-		if (!user) {
+ 	  });
+
+ 	  if (!user) {
 		  return res
-			.status(404)
-			.send({ message: `Username '${username}' does not exist on server.` });
-		}
-	  
-		const postsCount = await Post.find({ author: user.id }).countDocuments();
-		const paginated = paginateResults(page, limit, postsCount);
-		const userPosts = await Post.find({ author: user.id })
+ 	        .status(404)
+ 	        .send({ message: `Username '${username}' does not exist on server.` });
+ 	  }
+
+ 	  const postsCount = await Post.find({ author: user.id }).countDocuments();
+ 	  const paginated = paginateResults(page, limit, postsCount);
+ 	  const userPosts = await Post.find({ author: user.id })
 		  .sort({ createdAt: -1 })
 		  .select('-comments')
 		  .limit(limit)
 		  .skip(paginated.startIndex)
 		  .populate('author', 'username')
 		  .populate('subreddit', 'subredditName');
-	  
-		const paginatedPosts = {
+
+ 	  const paginatedPosts = {
 		  previous: paginated.results.previous,
 		  results: userPosts,
 		  next: paginated.results.next,
-		};
-	  
-		res.status(200).json({ userDetails: user, posts: paginatedPosts });
+ 	  };
+
+ 	  res.status(200).json({ userDetails: user, posts: paginatedPosts });
 	  };
 
 	 setUserAvatar = async (req, res) => {
-		const { avatarImage } = req.body;
-	  
-		if (!avatarImage) {
+	   const { avatarImage } = req.body;
+
+	   if (!avatarImage) {
 		  return res
-			.status(400)
-			.send({ message: 'Image URL needed for setting avatar.' });
-		}
-	  
-		const user = await User.findById(req.user);
-	  
-		if (!user) {
+	         .status(400)
+	         .send({ message: 'Image URL needed for setting avatar.' });
+	   }
+
+	   const user = await User.findById(req.user);
+
+	   if (!user) {
 		  return res
-			.status(404)
-			.send({ message: 'User does not exist in database.' });
-		}
-	  
-		const uploadedImage = await cloudinary.uploader.upload(
+	         .status(404)
+	         .send({ message: 'User does not exist in database.' });
+	   }
+
+	   const uploadedImage = await cloudinary.uploader.upload(
 		  avatarImage,
 		  {
-			upload_preset: UPLOAD_PRESET,
+	         upload_preset: UPLOAD_PRESET,
 		  },
 		  (error) => {
-			if (error) return res.status(401).send({ message: error.message });
-		  }
-		);
-	  
-		user.avatar = {
+	         if (error) return res.status(401).send({ message: error.message });
+		  },
+	   );
+
+	   user.avatar = {
 		  exists: true,
 		  imageLink: uploadedImage.url,
 		  imageId: uploadedImage.public_id,
-		};
-	  
-		const savedUser = await user.save();
-		res.status(201).json({ avatar: savedUser.avatar });
+	   };
+
+	   const savedUser = await user.save();
+	   res.status(201).json({ avatar: savedUser.avatar });
 	  };
 
 removeUserAvatar = async (req, res) => {
@@ -105,8 +108,8 @@ removeUserAvatar = async (req, res) => {
 
   if (!user) {
     return res
-      .status(404)
-      .send({ message: 'User does not exist in database.' });
+        .status(404)
+        .send({ message: 'User does not exist in database.' });
   }
 
   user.avatar = {
@@ -172,7 +175,7 @@ removeUserAvatar = async (req, res) => {
 	    next(err);
 	  }
 	};
-	
+
 	// // upload user profile image
 	changePicture = async (req, res, next) => {
 	  try {
@@ -238,15 +241,15 @@ removeUserAvatar = async (req, res) => {
 	};
 
 	// get user profile
-	
+
 	sendMail = async (req, res, next) => {
 	  try {
 	    const user ={
 	      fromEmail: req.body.fromEmail,
 	      toEmail: req.body.toEmail,
 	      text: req.body.text,
-		};
-		// will usee to send the email
+	    };
+	    // will usee to send the email
 	    // sendInquiryEmail(user);
 	    res.status(200).json({
 	      message: 'message has been sent',
@@ -268,7 +271,7 @@ removeUserAvatar = async (req, res) => {
 	      source: token.id,
 	    });
 
-	    const idempotency_key = uuidv4();
+	    const idempotencyKey = uuidv4();
 	    const charge = await stripe.charges.create(
 			  {
 	          amount: product.price * 100,
@@ -288,7 +291,7 @@ removeUserAvatar = async (req, res) => {
 	          },
 			  },
 			  {
-	          idempotency_key,
+	          idempotencyKey,
 			  },
 	    );
 	    console.log('Charge:', { charge });
@@ -312,20 +315,20 @@ removeUserAvatar = async (req, res) => {
 
 
     getProfile = async (req, res, next) => {
-    try {
+      try {
       // find user by its id
       // find user by its id and update
-      const user = await User.findById({ _id: req.user._id }).select('-password');
-      if (!user) {
-        return res.status(404).json({ msg: Constants.messages.userNotFound });
-      }
+        const user = await User.findById({ _id: req.user._id }).select('-password');
+        if (!user) {
+          return res.status(404).json({ msg: Constants.messages.userNotFound });
+        }
 
-      return res.status(200).json({ msg: Constants.messages.success, user: user });
-    } catch (err) {
-      err.status = 400;
-      next(err);
-    }
-  };
+        return res.status(200).json({ msg: Constants.messages.success, user: user });
+      } catch (err) {
+        err.status = 400;
+        next(err);
+      }
+    };
 }
 
 export default new UsersController();

@@ -1,3 +1,6 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable no-unused-vars */
+
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const schemaCleaner = require('../utils/schemaCleaner');
@@ -11,26 +14,22 @@ const userSchema = new mongoose.Schema(
         maxlength: 20,
         required: true,
         trim: true,
+        unique: true,
+      },
+      email: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true,
       },
       passwordHash: {
         type: String,
         required: true,
       },
       avatar: {
-        exists: {
-          type: Boolean,
-          default: 'false',
-        },
-        imageLink: {
-          type: String,
-          trim: true,
-          default: 'null',
-        },
-        imageId: {
-          type: String,
-          trim: true,
-          default: 'null',
-        },
+        type: String,
+        trim: true,
+        default: 'null',
       },
       karmaPoints: {
         postKarma: {
@@ -57,6 +56,11 @@ const userSchema = new mongoose.Schema(
       totalComments: {
         type: Number,
         default: 0,
+      },
+      role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user',
       },
     },
     {

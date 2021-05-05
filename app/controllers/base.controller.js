@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-prototype-builtins */
 class BaseController {
   filterParams(params, whitelist) {

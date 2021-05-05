@@ -1,7 +1,10 @@
-export const sendPasswordResetEmail = (user, link) =>
-  `Hi <strong>${user.firstName} ${user.lastName}!</strong><br> Here is Your Update Password Link, Please Click: <strong><a href='${link}'>Here</a></strong> Which is only valid for 2 minutes `;
+/* eslint-disable linebreak-style */
+/* eslint-disable no-tabs */
+/* eslint-disable max-len */
+export const sendPasswordResetTemplate = (user, link) =>
+  `Hi <strong>${user.username} !</strong><br> Here is Your Update Password Link, Please Click: <strong><a href='${link}'>Here</a></strong> Which is only valid for 2 minutes `;
 
-export const InquiryEmailTemplate = (user) => `Hi <strong> There! </strong> <br> From Govver dashboard this user ${user.fromEmail} want to claim this from you as he voted previously, please have a look on his Bill, <br> <strong> ${user.text} </strong>,<br> you can find his email from CC <br> Thanks <br> Govver.com`;
+export const inquiryEmailTemplate = (user) => `Hi <strong> There! </strong> <br> From Govver dashboard this user ${user.fromEmail} want to claim this from you as he voted previously, please have a look on his Bill, <br> <strong> ${user.text} </strong>,<br> you can find his email from CC <br> Thanks <br> Govver.com`;
 export const sendAddEmployeeEmail = (user) =>
   `<p>Hi <strong>${user.firstName} ${user.lastName}!</strong></p>
   <p>You have been add as an employee: Here is your login credentials</p>

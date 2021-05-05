@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import Constants from '../config/constants';
 
 export default function errorHandler(err, req, res, next) {

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const pointsCalculator = (upvotes, downvotes, createdDate) => {
   const result = {};
   const points = upvotes - downvotes;

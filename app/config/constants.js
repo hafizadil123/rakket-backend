@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import path from 'path';
 import merge from 'lodash/merge';
 
@@ -20,7 +21,7 @@ const defaultConfig = {
   },
   version: require('../../package.json').version,
   root: path.normalize(__dirname + '/../../..'),
-  port: process.env.PORT || 5000,
+  port: process.env.PORT || 3005,
   ip: process.env.IP || '0.0.0.0',
   apiPrefix: '/api', // Could be /api/resource or /api/v2/resource
   userRoles: ['', '', '', ''],
@@ -56,8 +57,8 @@ const defaultConfig = {
     employeeAdd: 'Employee Added Successfully!',
     employeeDelete: 'Employee Removed Successfully!',
     userPasswordSuccess: 'Password Set Successfully!',
-    userPasswordChangeSuccess: 'Password Change Successfully!',
-    userInvalidPassword: 'Invalid Password!',
+    passwordChangeSuccess: 'Password Change Successfully!',
+    passwordNotMatched: 'Old password not matched',
     userInvalidCredentials: 'Invalid Credentials!',
     linkExpire: 'Link Expired,Please Generate Again!',
     userExist: 'User Already Exist!',
@@ -74,6 +75,7 @@ const defaultConfig = {
     accountAcceptSuccess: 'Account Accepted Successfully!',
     accountRejectedSuccess: 'Account Blocked Successfully!',
     success: 'success',
+    service: 'Gmail',
     email: 'ahafiz167@gmail.com',
     password: 'ddp-sp14-bse-059',
     contactUsAddedSuccess: 'Contacted Successfully!',

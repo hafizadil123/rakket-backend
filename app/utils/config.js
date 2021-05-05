@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import { Router } from 'express';
 const { auth } = require('../utils/middleware');
 import PostController from '../controllers/post.controller';

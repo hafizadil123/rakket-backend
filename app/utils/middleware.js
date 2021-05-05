@@ -1,5 +1,6 @@
+/* eslint-disable linebreak-style */
 const jwt = require('jsonwebtoken');
-const { SECRET } = require('../utils/config');
+import Constants from '../config/constants';
 
 const auth = (req, res, next) => {
   try {
@@ -7,16 +8,16 @@ const auth = (req, res, next) => {
 
     if (!token) {
       return res
-        .status(401)
-        .send({ message: 'No auth token found. Authorization denied.' });
+          .status(401)
+          .send({ message: 'No auth token found. Authorization denied.' });
     }
 
-    const decodedToken = jwt.verify(token, SECRET);
+    const decodedToken = jwt.verify(token, Constants.security.sessionSecret);
 
     if (!decodedToken.id) {
       return res
-        .status(401)
-        .send({ message: 'Token verification failed. Authorization denied.' });
+          .status(401)
+          .send({ message: 'Token verification failed. Authorization denied.' });
     }
 
     req.user = decodedToken.id;

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import BaseController from './base.controller';
 const Post = require('../models/post');
 const Subreddit = require('../models/subreddit');

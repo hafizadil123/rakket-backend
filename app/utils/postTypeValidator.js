@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const validator = require('validator');
 
 const parseTextSubmission = (textSubmission) => {
@@ -43,7 +44,7 @@ const postTypeValidator = (type, text, link, image) => {
 
     default:
       throw new Error(
-        'Invalid post type. Valid types include - Text, Link or Image.'
+          'Invalid post type. Valid types include - Text, Link or Image.',
       );
   }
 };

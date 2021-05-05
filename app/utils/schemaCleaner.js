@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const schemaCleaner = (schema) => {
   schema.set('toJSON', {
     transform: (_document, returnedObject) => {
