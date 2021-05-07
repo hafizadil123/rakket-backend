@@ -145,8 +145,6 @@ forgetPassword = async (req, res, next) => {
     if (err.message === 'jwt expired') {
       return res.status(400).json({ message: Constants.messages.linkExpire });
     }
-    err.status = 400;
-    next(err);
   }
 };
 
