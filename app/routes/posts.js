@@ -16,7 +16,7 @@ posts.get('/:id/comments', PostController.getPostAndComments);
 posts.get('/subscribed', auth, PostController.getSubscribedPosts);
 posts.post('/', auth, PostController.createNewPost);
 posts.patch('/:id', auth, PostController.updatePost);
-posts.delete(':id', auth, PostController.deletePost);
+posts.delete('/:id', auth, PostController.deletePost);
 
 // posts vote routes
 posts.post('/:id/upvote', auth, PostVoteController.upvotePost);

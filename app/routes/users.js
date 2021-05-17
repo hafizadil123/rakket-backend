@@ -9,11 +9,7 @@ const { auth } = require('../utils/middleware');
 const users = new Router();
 
 // Users Routes
-users.get('/test', (req, res) => {
-  res.json({
-    message: 'welcome in rakket way',
-  });
-});
+
 users.post('/register', AuthController.register);
 users.post('/login', AuthController.login);
 users.post('/send-forget-password-email', AuthController.sendForgetPassEmail);

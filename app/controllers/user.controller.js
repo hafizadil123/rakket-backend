@@ -2,18 +2,20 @@
 /* eslint-disable no-tabs */
 /* eslint-disable no-mixed-spaces-and-tabs */
 /* eslint-disable no-unused-vars */
+/* eslint-disable new-cap */
+/* eslint-disable babel/new-cap */
 
 import BaseController from './base.controller';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
-import Constants from '../config/constants';
 import { v4 as uuidv4 } from 'uuid';
-const Post = require('../models/post');
-const { cloudinary, UPLOAD_PRESET } = require('../utils/config');
-const paginateResults = require('../utils/paginateResults');
 
+import Constants from '../config/constants';
+const Post = require('../models/post');
+const { cloudinary, UPLOAD_PRESET, s3 } = require('../utils/config');
+const paginateResults = require('../utils/paginateResults');
 
 const stripe = require('stripe')('strip_secret_key');
 
@@ -36,7 +38,6 @@ class UsersController extends BaseController {
  	  const { username } = req.params;
  	  const page = Number(req.query.page);
  	  const limit = Number(req.query.limit);
-
  	  const user = await User.findOne({
 		  username: { $regex: new RegExp('^' + username + '$', 'i') },
  	  });
@@ -83,21 +84,29 @@ class UsersController extends BaseController {
 	         .send({ message: 'User does not exist in database.' });
 	   }
 
-	   const uploadedImage = await cloudinary.uploader.upload(
-		  avatarImage,
-		  {
-	         upload_preset: UPLOAD_PRESET,
-		  },
-		  (error) => {
-	         if (error) return res.status(401).send({ message: error.message });
-		  },
-	   );
+	   const base64Data = new Buffer.from(avatarImage.replace(/^data:image\/\w+;base64,/, ''), 'base64');
 
-	   user.avatar = {
-		  exists: true,
-		  imageLink: uploadedImage.url,
-		  imageId: uploadedImage.public_id,
-	   };
+	   const params = {
+	     Bucket: Constants.messages.bucket,
+	     Key: `${req.user}-avatar-${new Date().getTime()}`, // slash makes a new folder on s3
+	     Body: base64Data,
+	     ACL: 'public-read',
+	     ContentEncoding: 'base64', // required
+	     ContentType: `image/png`,
+	  };
+	  const { Location, Key } = await s3.upload(params).promise();
+
+	   //    const uploadedImage = await cloudinary.uploader.upload(
+	   // 	  avatarImage,
+	   // 	  {
+	   //          upload_preset: UPLOAD_PRESET,
+	   // 	  },
+	   // 	  (error) => {
+	   //          if (error) return res.status(401).send({ message: error.message });
+	   // 	  },
+	   //    );
+
+	   user.avatar = Location;
 
 	   const savedUser = await user.save();
 	   res.status(201).json({ avatar: savedUser.avatar });
@@ -112,11 +121,7 @@ removeUserAvatar = async (req, res) => {
         .send({ message: 'User does not exist in database.' });
   }
 
-  user.avatar = {
-    exists: false,
-    imageLink: 'null',
-    imageId: 'null',
-  };
+  user.avatar = '';
 
   await user.save();
   res.status(204).end();

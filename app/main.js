@@ -6,6 +6,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
+import fileUpload from 'express-fileupload';
 const cron = require('node-cron');
 import helmet from 'helmet';
 import users from './routes/users';
@@ -41,6 +42,10 @@ if (!Constants.envs.test) {
 // https://github.com/expressjs/body-parser
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+// Express FileUpload helps in handling and saving files
+// https://www.npmjs.com/package/express-fileupload
+app.use(fileUpload());
 
 // Lets you use HTTP verbs such as PUT or DELETE
 // https://github.com/expressjs/method-override

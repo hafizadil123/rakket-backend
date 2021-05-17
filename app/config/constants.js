@@ -98,14 +98,13 @@ const defaultConfig = {
     settingsNotFound: 'Settings Not Found!',
     invalidEventType: 'Invalid Event Type!',
     stripeSceretKey: '',
-    s3AccessKeyId: '',
-    s3SecretAccessKey: '',
-    paypalClientId: '',
-    paypalClientSecret: '',
     dataSecret: '',
     productionLinkFrontend: 'http://localhost:3000/',
     productionLink: 'https://d1enl2tjj7x5i0.cloudfront.net/',
-
+    accessKey: '5NR99B47AJBQQNJJXE1X',
+    secretKey: 'FcyhkywbL4gNeJZwFoePU5psYycQA9z34WGldFjL',
+    bucket: 'rakket-bucket',
+    region: 'us-west-1',
   },
   USER_SERVICE: {
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
