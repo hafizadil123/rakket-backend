@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema(
           ref: 'Post',
         },
       ],
+      categories: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Category',
+        },
+      ],
       subscribedSubs: [
         {
           type: mongoose.Schema.Types.ObjectId,

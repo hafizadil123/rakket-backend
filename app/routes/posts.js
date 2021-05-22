@@ -10,7 +10,7 @@ const posts = new Router();
 
 
 // CRUD posts routes
-posts.get('/', PostController.getPosts);
+posts.post('/all-posts', PostController.getPosts);
 posts.get('/search', PostController.getSearchedPosts);
 posts.get('/:id/comments', PostController.getPostAndComments);
 posts.get('/subscribed', auth, PostController.getSubscribedPosts);

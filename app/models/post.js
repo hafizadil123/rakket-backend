@@ -81,18 +81,20 @@ const postSchema = new mongoose.Schema({
     trim: true,
   },
   imageSubmission: {
-    imageLink: {
-      type: String,
-      trim: true,
-    },
-    imageId: {
-      type: String,
-      trim: true,
-    },
+    type: String,
+    trim: true,
+  },
+  videoSubmission: {
+    type: String,
+    trim: true,
   },
   subreddit: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Subreddit',
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,

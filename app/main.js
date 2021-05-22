@@ -10,6 +10,7 @@ import fileUpload from 'express-fileupload';
 const cron = require('node-cron');
 import helmet from 'helmet';
 import users from './routes/users';
+import admin from './routes/admin';
 import posts from './routes/posts';
 import subreddit from './routes/subreddits';
 import Constants from './config/constants';
@@ -56,6 +57,7 @@ app.use('/public', express.static(`${__dirname}/public`));
 
 // Mount API routes
 app.use(`${Constants.apiPrefix}/users`, users);
+app.use(`${Constants.apiPrefix}/admin`, admin);
 app.use(`${Constants.apiPrefix}/posts`, posts);
 app.use(`${Constants.apiPrefix}/subreddits`, subreddit);
 // cron.schedule('0 12 * * 7', () => {

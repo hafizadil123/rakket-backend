@@ -1,15 +1,21 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable new-cap */
+/* eslint-disable babel/new-cap */
+/* eslint-disable max-len */
+
 import BaseController from './base.controller';
 const Post = require('../models/post');
 const Subreddit = require('../models/subreddit');
+const Category = require('../models/category');
 const User = require('../models/user');
-const postTypeValidator = require('../utils/postTypeValidator');
-const { cloudinary, UPLOAD_PRESET } = require('../utils/config');
+// const postTypeValidator = require('../utils/postTypeValidator');
+const { s3 } = require('../utils/config');
 const paginateResults = require('../utils/paginateResults');
+import Constants from '../config/constants';
 
 class PostController extends BaseController {
 getPosts = async (req, res) => {
-  console.log('calledddd');
+  console.log('calledddd', req.body);
   const page = Number(req.query.page);
   const limit = Number(req.query.limit);
   const sortBy = req.query.sortby;
@@ -38,23 +44,66 @@ getPosts = async (req, res) => {
       sortQuery = {};
   }
 
-  const postsCount = await Post.countDocuments();
-  const paginated = paginateResults(page, limit, postsCount);
-  const allPosts = await Post.find({})
-      .sort(sortQuery)
-      .select('-comments')
-      .limit(limit)
-      .skip(paginated.startIndex)
-      .populate('author', 'username')
-      .populate('subreddit', 'subredditName');
+  if (req.body.user === 'user') {
+    const postsCount = await Post.countDocuments();
+    const paginated = paginateResults(page, limit, postsCount);
+    const allPosts = await Post.find({})
+        .sort(sortQuery)
+        .select('-comments')
+        .limit(limit)
+        .skip(paginated.startIndex)
+        .populate('author', 'username')
+        .populate('subreddit', 'subredditName');
 
-  const paginatedPosts = {
-    previous: paginated.results.previous,
-    results: allPosts,
-    next: paginated.results.next,
-  };
+    const paginatedPosts = {
+      previous: paginated.results.previous,
+      results: allPosts,
+      next: paginated.results.next,
+    };
 
-  res.status(200).json(paginatedPosts);
+    res.status(200).json(paginatedPosts);
+  } else {
+    const user = await User.findById(req.body.user);
+    const postsCount = await Post.countDocuments({ subreddit: { $in: user.subscribedSubs } });
+    const postsCount1 = await Post.countDocuments({ category: { $in: user.categories } });
+    const paginated = paginateResults(page, limit, postsCount + postsCount1);
+    const allPosts = await Post.find({ subreddit: { $in: user.subscribedSubs } })
+        .sort(sortQuery)
+        .select('-comments')
+        .limit(limit)
+        .skip(paginated.startIndex)
+        .populate('author', 'username')
+        .populate('subreddit', 'subredditName')
+        .populate('category', 'name');
+
+    const allPosts1 = await Post.find({ category: { $in: user.categories } })
+        .sort(sortQuery)
+        .select('-comments')
+        .limit(limit)
+        .skip(paginated.startIndex)
+        .populate('author', 'username')
+        .populate('subreddit', 'subredditName')
+        .populate('category', 'name');
+
+    const allPosts2 = await Post.find({ author: req.user })
+        .sort(sortQuery)
+        .select('-comments')
+        .limit(limit)
+        .skip(paginated.startIndex)
+        .populate('author', 'username')
+        .populate('subreddit', 'subredditName')
+        .populate('category', 'name');
+
+    const postsData = [...allPosts, ...allPosts1, ...allPosts2];
+
+    const paginatedPosts = {
+      previous: paginated.results.previous,
+      results: postsData,
+      next: paginated.results.next,
+    };
+
+    res.status(200).json(paginatedPosts);
+  }
 };
 
 getSubscribedPosts = async (req, res) => {
@@ -161,21 +210,21 @@ createNewPost = async (req, res) => {
   const {
     title,
     subreddit,
+    category,
     postType,
     textSubmission,
     linkSubmission,
-    imageSubmission,
   } = req.body;
 
-  const validatedFields = postTypeValidator(
-      postType,
-      textSubmission,
-      linkSubmission,
-      imageSubmission,
-  );
+  // const validatedFields = postTypeValidator(
+  //     postType,
+  //     textSubmission,
+  //     linkSubmission,
+  // );
 
   const author = await User.findById(req.user);
   const targetSubreddit = await Subreddit.findById(subreddit);
+  const targetCategory = await Category.findById(category);
 
   if (!author) {
     return res
@@ -189,30 +238,50 @@ createNewPost = async (req, res) => {
     });
   }
 
+  if (!targetCategory) {
+    return res.status(404).send({
+      message: `Category with ID: '${category}' does not exist in database.`,
+    });
+  }
+
   const newPost = new Post({
     title,
     subreddit,
+    category,
     author: author._id,
     upvotedBy: [author._id],
     pointsCount: 1,
-    ...validatedFields,
+    textSubmission,
+    linkSubmission,
+    postType,
   });
 
   if (postType === 'Image') {
-    const uploadedImage = await cloudinary.uploader.upload(
-        imageSubmission,
-        {
-          upload_preset: UPLOAD_PRESET,
-        },
-        (error) => {
-          if (error) return res.status(401).send({ message: error.message });
-        },
-    );
-
-    newPost.imageSubmission = {
-      imageLink: uploadedImage.url,
-      imageId: uploadedImage.public_id,
+    const params = {
+      Bucket: Constants.messages.bucket,
+      Key: `${req.user}-post-image-${new Date().getTime()}`, // slash makes a new folder on s3
+      Body: req.files.imageSubmission.data,
+      ACL: 'public-read',
+      // ContentEncoding: 'base64', // required
+      ContentType: req.files.imageSubmission.mimetype,
     };
+    const { Location } = await s3.upload(params).promise();
+
+    newPost.imageSubmission = Location;
+  }
+
+  if (postType === 'Video') {
+    const params = {
+      Bucket: Constants.messages.bucket,
+      Key: `${req.user}-post-video-${new Date().getTime()}`, // slash makes a new folder on s3
+      Body: req.files.videoSubmission.data,
+      ACL: 'public-read',
+      ContentEncoding: 'base64', // required
+      ContentType: req.files.videoSubmission.mimetype,
+    };
+    const { Location } = await s3.upload(params).promise();
+
+    newPost.videoSubmission = Location;
   }
 
   const savedPost = await newPost.save();
@@ -235,7 +304,7 @@ createNewPost = async (req, res) => {
  updatePost = async (req, res) => {
    const { id } = req.params;
 
-   const { textSubmission, linkSubmission, imageSubmission } = req.body;
+   const { textSubmission, linkSubmission, postType } = req.body;
 
    const post = await Post.findById(id);
    const author = await User.findById(req.user);
@@ -256,46 +325,45 @@ createNewPost = async (req, res) => {
      return res.status(401).send({ message: 'Access is denied.' });
    }
 
-   const validatedFields = postTypeValidator(
-       post.postType,
-       textSubmission,
-       linkSubmission,
-       imageSubmission,
-   );
+   //  const validatedFields = postTypeValidator(
+   //      post.postType,
+   //      textSubmission,
+   //      linkSubmission,
+   //      imageSubmission,
+   //  );
 
-   switch (post.postType) {
-     case 'Text':
-       post.textSubmission = validatedFields.textSubmission;
-       break;
+   if (postType === 'Image') {
+     const params = {
+       Bucket: Constants.messages.bucket,
+       Key: `${req.user}-post-image-${new Date().getTime()}`, // slash makes a new folder on s3
+       Body: req.files.imageSubmission.data,
+       ACL: 'public-read',
+       // ContentEncoding: 'base64', // required
+       ContentType: req.files.imageSubmission.mimetype,
+     };
+     const { Location } = await s3.upload(params).promise();
 
-     case 'Link':
-       post.linkSubmission = validatedFields.linkSubmission;
-       break;
+     post.imageSubmission = Location;
+   }
 
-     case 'Image': {
-       const uploadedImage = await cloudinary.uploader.upload(
-           imageSubmission,
-           {
-             upload_preset: UPLOAD_PRESET,
-           },
-           (error) => {
-             if (error) return res.status(401).send({ message: error.message });
-           },
-       );
+   if (postType === 'Video') {
+     const params = {
+       Bucket: Constants.messages.bucket,
+       Key: `${req.user}-post-video-${new Date().getTime()}`, // slash makes a new folder on s3
+       Body: req.files.videoSubmission.data,
+       ACL: 'public-read',
+       ContentEncoding: 'base64', // required
+       ContentType: req.files.videoSubmission.mimetype,
+     };
+     const { Location } = await s3.upload(params).promise();
 
-       post.imageSubmission = {
-         imageLink: uploadedImage.url,
-         imageId: uploadedImage.public_id,
-       };
-       break;
-     }
-
-     default:
-       return res.status(403).send({ message: 'Invalid post type.' });
+     post.videoSubmission = Location;
    }
 
    post.updatedAt = Date.now();
-
+   post.postType = postType;
+   post.textSubmission = textSubmission;
+   post.linkSubmission = linkSubmission;
    const savedPost = await post.save();
    const populatedPost = await savedPost
        .populate('author', 'username')

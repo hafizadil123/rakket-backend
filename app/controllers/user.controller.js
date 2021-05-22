@@ -181,17 +181,17 @@ removeUserAvatar = async (req, res) => {
 	  }
 	};
 
-	// // upload user profile image
-	changePicture = async (req, res, next) => {
+	selectCategory = async (req, res, next) => {
+	  const { categories } = req.body;
 	  try {
 	    // find user by its id
-	    const user = await User.findById({ _id: req.user.id }).select('imageUrl');
+	    const user = await User.findById({ _id: req.user });
 	    if (!user) {
-	      return res.status(404).json({ msg: Constants.messages.userNotFound });
+	      return res.status(404).json({ message: Constants.messages.userNotFound });
 	    }
-	    user.imageUrl = `${req.files.imageUrl[0].filename}`;
+	    user.categories = categories;
 	    await user.save();
-	    return res.status(200).json({ msg: 'Profile Uploaded Successfully!', imageUrl: user.imageUrl });
+	    return res.status(200).json({ message: 'Category selected successfully!' });
 	  } catch (err) {
 	    err.status = 400;
 	    next(err);
@@ -300,15 +300,15 @@ removeUserAvatar = async (req, res) => {
 			  },
 	    );
 	    console.log('Charge:', { charge });
-	    const getUserObj = await Bill.findOne({
-	      userId,
-	    });
-	    console.log('dddddddd', getUserObj, getUserObj.vote );
-	    await Bill.findOneAndUpdate({
-	      userId,
-	    },
-	    { $set: { vote: (getUserObj.vote + 1) || 0 } }, { new: true },
-	    );
+	    // const getUserObj = await Bill.findOne({
+	    //   userId,
+	    // });
+	    // console.log('dddddddd', getUserObj, getUserObj.vote );
+	    // await Bill.findOneAndUpdate({
+	    //   userId,
+	    // },
+	    // { $set: { vote: (getUserObj.vote + 1) || 0 } }, { new: true },
+	    // );
 	    status = 'success';
 	  } catch (error) {
 	    console.error('Error:', error);

@@ -19,6 +19,8 @@ users.post('/reset-password', auth, AuthController.resetPassword);
 // users.get('/get-user', auth, UsersController.getUserDetail);
 users.post('/checkout', auth, UsersController.checkout);
 
+users.post('/select-category', auth, UsersController.selectCategory);
+
 users.put('/update-profile', auth, UsersController.changeProfile);
 // users.get('/deactivateAccount', authenticate, UsersController.deactivateAccount);
 
