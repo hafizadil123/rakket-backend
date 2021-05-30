@@ -92,13 +92,15 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Subreddit',
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+  },
+  subredditName: {
+    type: String,
+  },
+  authorName: {
+    type: String,
   },
   upvotedBy: [
     {

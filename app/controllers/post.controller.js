@@ -6,7 +6,6 @@
 import BaseController from './base.controller';
 const Post = require('../models/post');
 const Subreddit = require('../models/subreddit');
-const Category = require('../models/category');
 const User = require('../models/user');
 // const postTypeValidator = require('../utils/postTypeValidator');
 const { s3 } = require('../utils/config');
@@ -44,66 +43,23 @@ getPosts = async (req, res) => {
       sortQuery = {};
   }
 
-  if (req.body.user === 'user') {
-    const postsCount = await Post.countDocuments();
-    const paginated = paginateResults(page, limit, postsCount);
-    const allPosts = await Post.find({})
-        .sort(sortQuery)
-        .select('-comments')
-        .limit(limit)
-        .skip(paginated.startIndex)
-        .populate('author', 'username')
-        .populate('subreddit', 'subredditName');
+  const postsCount = await Post.countDocuments();
+  const paginated = paginateResults(page, limit, postsCount);
+  const allPosts = await Post.find({})
+      .sort(sortQuery)
+      .select('-comments')
+      .limit(limit)
+      .skip(paginated.startIndex)
+      .populate('author', 'username')
+      .populate('subreddit', 'subredditName');
 
-    const paginatedPosts = {
-      previous: paginated.results.previous,
-      results: allPosts,
-      next: paginated.results.next,
-    };
+  const paginatedPosts = {
+    previous: paginated.results.previous,
+    results: allPosts,
+    next: paginated.results.next,
+  };
 
-    res.status(200).json(paginatedPosts);
-  } else {
-    const user = await User.findById(req.body.user);
-    const postsCount = await Post.countDocuments({ subreddit: { $in: user.subscribedSubs } });
-    const postsCount1 = await Post.countDocuments({ category: { $in: user.categories } });
-    const paginated = paginateResults(page, limit, postsCount + postsCount1);
-    const allPosts = await Post.find({ subreddit: { $in: user.subscribedSubs } })
-        .sort(sortQuery)
-        .select('-comments')
-        .limit(limit)
-        .skip(paginated.startIndex)
-        .populate('author', 'username')
-        .populate('subreddit', 'subredditName')
-        .populate('category', 'name');
-
-    const allPosts1 = await Post.find({ category: { $in: user.categories } })
-        .sort(sortQuery)
-        .select('-comments')
-        .limit(limit)
-        .skip(paginated.startIndex)
-        .populate('author', 'username')
-        .populate('subreddit', 'subredditName')
-        .populate('category', 'name');
-
-    const allPosts2 = await Post.find({ author: req.user })
-        .sort(sortQuery)
-        .select('-comments')
-        .limit(limit)
-        .skip(paginated.startIndex)
-        .populate('author', 'username')
-        .populate('subreddit', 'subredditName')
-        .populate('category', 'name');
-
-    const postsData = [...allPosts, ...allPosts1, ...allPosts2];
-
-    const paginatedPosts = {
-      previous: paginated.results.previous,
-      results: postsData,
-      next: paginated.results.next,
-    };
-
-    res.status(200).json(paginatedPosts);
-  }
+  res.status(200).json(paginatedPosts);
 };
 
 getSubscribedPosts = async (req, res) => {
@@ -164,6 +120,18 @@ getSearchedPosts = async (req, res) => {
           $options: 'i',
         },
       },
+      {
+        authorName: {
+          $regex: query,
+          $options: 'i',
+        },
+      },
+      {
+        subredditName: {
+          $regex: query,
+          $options: 'i',
+        },
+      },
     ],
   };
 
@@ -210,7 +178,6 @@ createNewPost = async (req, res) => {
   const {
     title,
     subreddit,
-    category,
     postType,
     textSubmission,
     linkSubmission,
@@ -224,7 +191,6 @@ createNewPost = async (req, res) => {
 
   const author = await User.findById(req.user);
   const targetSubreddit = await Subreddit.findById(subreddit);
-  const targetCategory = await Category.findById(category);
 
   if (!author) {
     return res
@@ -238,17 +204,12 @@ createNewPost = async (req, res) => {
     });
   }
 
-  if (!targetCategory) {
-    return res.status(404).send({
-      message: `Category with ID: '${category}' does not exist in database.`,
-    });
-  }
-
   const newPost = new Post({
     title,
     subreddit,
-    category,
+    subredditName: targetSubreddit.subredditName,
     author: author._id,
+    authorName: author.username,
     upvotedBy: [author._id],
     pointsCount: 1,
     textSubmission,
@@ -304,7 +265,7 @@ createNewPost = async (req, res) => {
  updatePost = async (req, res) => {
    const { id } = req.params;
 
-   const { textSubmission, linkSubmission, postType } = req.body;
+   const { title, subreddit, textSubmission, linkSubmission, postType } = req.body;
 
    const post = await Post.findById(id);
    const author = await User.findById(req.user);
@@ -361,6 +322,8 @@ createNewPost = async (req, res) => {
    }
 
    post.updatedAt = Date.now();
+   post.title = title;
+   post.subreddit = subreddit;
    post.postType = postType;
    post.textSubmission = textSubmission;
    post.linkSubmission = linkSubmission;

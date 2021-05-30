@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
 import nodemailer from 'nodemailer';
-import { sendPasswordResetTemplate, sendAddEmployeeEmail, ratingEmailTemplate, inquiryEmailTemplate } from './emails';
+import { sendPasswordResetTemplate, sendAddEmployeeEmail, sendEmailVerificationTemplate, inquiryEmailTemplate } from './emails';
 import Constants from '../config/constants';
 
 export const sendResetPassEmail = (user, link) => {
@@ -33,7 +33,7 @@ export const sendResetPassEmail = (user, link) => {
 };
 
 
-export const sendRatingEmail = (user, link) => {
+export const sendEmailVerification = (user, link) => {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
     service: Constants.messages.service,
@@ -47,8 +47,8 @@ export const sendRatingEmail = (user, link) => {
   const mailOptions = {
     from: Constants.messages.email, // sender address
     to: [user.email], // list of receivers
-    subject: 'Rate Appointment', // Subject line
-    html: ratingEmailTemplate(user, link), // html body
+    subject: 'Email Verification', // Subject line
+    html: sendEmailVerificationTemplate(user, link), // html body
   };
 
   // send mail with defined transport object

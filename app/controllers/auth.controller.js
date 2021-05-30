@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 import Constants from '../config/constants';
-import { sendResetPassEmail } from '../lib/util';
+import { sendResetPassEmail, sendEmailVerification } from '../lib/util';
 
 class AuthController extends BaseController {
  login = async (req, res) => {
@@ -35,6 +35,7 @@ class AuthController extends BaseController {
 
    res.status(200).json({
      token,
+     isEmailVerified: user.isEmailVerified,
      username: user.username,
      id: user._id,
      email: user.email,
@@ -89,9 +90,11 @@ class AuthController extends BaseController {
    };
 
    const token = jwt.sign(payloadForToken, Constants.security.sessionSecret);
-
+   const link = `${Constants.messages.productionLinkFrontend}email-verification/${user._id}`;
+   await sendEmailVerification(user, link);
    res.status(200).json({
      token,
+     isEmailVerified: user.isEmailVerified,
      username: savedUser.username,
      id: savedUser._id,
      email: savedUser.email,
@@ -172,6 +175,42 @@ resetPassword = async (req, res, next) => {
       return res.status(200).json({ message: Constants.messages.passwordChangeSuccess });
     }
     return res.status(400).json({ message: Constants.messages.passwordNotMatched });
+  } catch (err) {
+    err.status = 400;
+    next(err);
+  }
+};
+
+verifyEmail = async (req, res, next) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ message: Constants.messages.userNotFound });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: 'Email already verified!' });
+    }
+
+    user.isEmailVerified = true;
+    await user.save();
+    const payloadForToken = {
+      id: user._id,
+    };
+
+    const token = jwt.sign(payloadForToken, Constants.security.sessionSecret);
+
+    res.status(200).json({
+      token,
+      username: user.username,
+      id: user._id,
+      email: user.email,
+      isEmailVerified: user.isEmailVerified,
+      role: user.role,
+      avatar: user.avatar,
+      karma: 0,
+    });
   } catch (err) {
     err.status = 400;
     next(err);

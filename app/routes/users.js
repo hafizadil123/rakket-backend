@@ -11,6 +11,7 @@ const users = new Router();
 // Users Routes
 
 users.post('/register', AuthController.register);
+users.get('/verify-email/:userId', AuthController.verifyEmail);
 users.post('/login', AuthController.login);
 users.post('/send-forget-password-email', AuthController.sendForgetPassEmail);
 users.post('/forget-password/:userId/:token', AuthController.forgetPassword);
