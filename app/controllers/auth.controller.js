@@ -21,6 +21,12 @@ class AuthController extends BaseController {
          .send({ message: `No account with this ${criteria.email ? `email '${criteria.email}'` : `username '${username}'`} has been registered.` });
    }
 
+   if (!user.isEmailVerified) {
+     return res
+         .status(400)
+         .send({ message: `Email not verified please verify before login` });
+   }
+
    const credentialsValid = await bcrypt.compare(password, user.passwordHash);
 
    if (!credentialsValid) {
