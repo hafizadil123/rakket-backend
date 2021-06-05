@@ -76,7 +76,7 @@ const defaultConfig = {
     accountRejectedSuccess: 'Account Blocked Successfully!',
     success: 'success',
     service: 'Gmail',
-    email: 'rakketdevs@gmail.com',
+    email: 'rakket@rakket.app',
     password: 'Alpha397Bravo!?',
     contactUsAddedSuccess: 'Contacted Successfully!',
     contactUsRemovedSuccess: 'Contact Us Removed Successfully!',
