@@ -99,7 +99,7 @@ const defaultConfig = {
     invalidEventType: 'Invalid Event Type!',
     stripeSceretKey: '',
     dataSecret: '',
-    productionLinkFrontend: 'http://localhost:3000/',
+    productionLinkFrontend: 'https://main.dkwi04pdt4wvv.amplifyapp.com/',
     productionLink: 'https://d1enl2tjj7x5i0.cloudfront.net/',
     accessKey: '5NR99B47AJBQQNJJXE1X',
     secretKey: 'FcyhkywbL4gNeJZwFoePU5psYycQA9z34WGldFjL',
