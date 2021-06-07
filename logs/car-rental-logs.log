@@ -2453,3 +2453,8 @@
 2021-05-30 15:37:20:3720 info: GET /api/posts/all-posts/?sortby=hot&limit=10&page=1 200 888.911 ms - 636
 2021-05-30 15:37:21:3721 info: GET /api/subreddits 304 295.011 ms - -
 2021-05-30 15:37:21:3721 info: GET /api/subreddits/top10 200 297.723 ms - 1006
+2021-06-07 16:55:40:5540 info: GET /api/posts/all-posts/?sortby=hot&limit=10&page=1 200 1091.697 ms - 2612
+2021-06-07 16:55:41:5541 info: GET /api/subreddits 200 308.592 ms - 121
+2021-06-07 16:55:42:5542 info: GET /api/subreddits/top10 200 308.606 ms - 459
+2021-06-07 16:57:10:5710 info: POST /api/posts 201 25614.963 ms - 730
+2021-06-07 16:57:12:5712 info: GET /api/posts/60be097d24118246f49e8954/comments 200 674.939 ms - 730
