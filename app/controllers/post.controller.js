@@ -224,7 +224,7 @@ createNewPost = async (req, res) => {
       Body: req.files.imageSubmission.data,
       ACL: 'public-read',
       // ContentEncoding: 'base64', // required
-      ContentType: req.files.imageSubmission.mimetype,
+      ContentType: 'png',
     };
     const { Location } = await s3.upload(params).promise();
 
@@ -300,7 +300,7 @@ createNewPost = async (req, res) => {
        Body: req.files.imageSubmission.data,
        ACL: 'public-read',
        // ContentEncoding: 'base64', // required
-       ContentType: req.files.imageSubmission.mimetype,
+       ContentType: 'png',
      };
      const { Location } = await s3.upload(params).promise();
 
